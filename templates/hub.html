@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block navbar %}{% endblock %}
+{% block content %}
+<div class="glow-container">
+  <div class="super-glow"></div>
+  <div class="super-glow glow-2"></div>
+</div>
+
+<section class="hero" style="height: calc(100vh - 80px); display: flex; max-width: 1200px; margin: 0 auto; gap: 40px; align-items: center; padding-left: 40px; padding-right: 40px; position: relative; z-index: 2; overflow: hidden;">
+  
+  <!-- Left Side: Copy and Cards -->
+  <div style="flex: 1; max-width: 500px; text-align: left; display: flex; flex-direction: column; justify-content: center;">
+    
+    <div class="hero-eyebrow" style="justify-content: flex-start; margin-bottom: 8px;">
+    </div>
+    
+    <h1 class="hero-title" style="font-size: 48px; text-shadow: 0 0 40px rgba(59,130,246,0.3); margin-bottom: 12px; line-height: 1.1; text-align: left;">
+      Elite <span class="gradient-text">Football</span> Data Engine.
+    </h1>
+    <p class="hero-desc" style="margin: 0 0 24px; font-size: 15px; text-align: left; opacity: 0.8;">
+      Select a module to begin analyzing data from Europe's elite leagues.
+    </p>
+
+    <div class="hub-grid" style="display:flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Player Analytics Card -->
+      <a href="/player" class="hub-card" style="position: relative; text-decoration: none; padding: 20px; text-align: left; border-radius: 12px; background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; display: flex; align-items: center; gap: 16px;">
+        <div class="card-glow-bg"></div>
+        <div style="font-size: 32px; filter: drop-shadow(0 0 10px rgba(59,130,246,0.5));">📊</div>
+        <div>
+          <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0 0 4px; letter-spacing: -0.5px;">Player Compare</h2>
+          <p style="color: var(--muted); font-size: 13px; margin: 0; line-height: 1.4;">Search any player, view per-90 stats, and generate stunning radar charts. Compare up to 4 players simultaneously.</p>
+        </div>
+      </a>
+
+      <!-- Scout Matcher Card -->
+      <a href="/scout" class="hub-card" style="position: relative; text-decoration: none; padding: 20px; text-align: left; border-radius: 12px; background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; display: flex; align-items: center; gap: 16px;">
+        <div class="card-glow-bg" style="background: radial-gradient(circle at 80% 20%, rgba(244,63,94,0.15) 0%, transparent 60%);"></div>
+        <div style="font-size: 32px; filter: drop-shadow(0 0 10px rgba(244,63,94,0.5));">🎯</div>
+        <div>
+          <h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0 0 4px; letter-spacing: -0.5px;">Scout Matcher</h2>
+          <p style="color: var(--muted); font-size: 13px; margin: 0; line-height: 1.4;">Input a target player and trigger our algorithm to calculate N-dimensional distances to find statistical twins across top leagues.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Right Side: Floating High-Tech Visuals -->
+  <div style="flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;" class="floating-visuals">
+    <div style="width: 100%; max-width: 450px; height: 450px; position: relative; transform: scale(0.9);">
+      
+      <!-- Big Radar Mockup -->
+      <div class="float-item radar-float" style="position: absolute; top: 0; right: 0; width: 240px; height: 240px; background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(59,130,246,0.3); border-radius: 50%; box-shadow: 0 0 50px rgba(59,130,246,0.2); display: flex; align-items: center; justify-content: center; z-index: 3;">
+        <div style="width: 180px; height: 180px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); position: relative;">
+          <!-- Concentric circles -->
+          <div style="position:absolute; top:22px; left:22px; right:22px; bottom:22px; border-radius:50%; border: 1px solid rgba(255,255,255,0.1);"></div>
+          <div style="position:absolute; top:45px; left:45px; right:45px; bottom:45px; border-radius:50%; border: 1px solid rgba(255,255,255,0.1);"></div>
+          <!-- Hexagon polygon shape mock -->
+          <svg width="180" height="180" style="position:absolute; top:0; left:0; filter: drop-shadow(0 0 15px rgba(59,130,246,0.8));">
+            <polygon points="90,15 160,50 150,135 90,170 30,115 45,45" fill="rgba(59,130,246,0.3)" stroke="#3b82f6" stroke-width="2"/>
+            <polygon points="90,45 135,70 125,108 90,144 54,117 63,63" fill="rgba(244,63,94,0.3)" stroke="#f43f5e" stroke-width="2"/>
+          </svg>
+        </div>
+        <div style="position:absolute; top:-15px; right:-15px; background:#1e293b; padding:6px 12px; border-radius:30px; font-size:11px; font-weight:bold; border:1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">Composite: 91.8</div>
+      </div>
+
+      <!-- Match score mockup -->
+      <div class="float-item match-float" style="position: absolute; top: 120px; left: 10px; background: rgba(244,63,94,0.1); padding: 12px 20px; border-radius: 100px; border: 1px solid rgba(244,63,94,0.3); display: flex; align-items: center; gap: 10px; z-index: 5;">
+        <div style="width: 34px; height: 34px; background: rgba(244,63,94,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔥</div>
+        <div>
+          <div style="font-size: 10px; text-transform: uppercase; color: #f43f5e; letter-spacing: 1px;">Top Scout Match</div>
+          <div style="font-size: 18px; font-weight: 800; color: white;">98.4% Similarity</div>
+        </div>
+      </div>
+
+      <!-- Data Bar Mockup -->
+      <div class="float-item bars-float" style="position: absolute; bottom: 0; right: 40px; width: 260px; background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 4;">
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px;">Percentile Rankings</div>
+        <!-- Bar 1 -->
+        <div style="margin-bottom: 10px;">
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Goals p90</span><span style="color:#3b82f6; font-weight:bold;">99%</span></div>
+          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 99%; background: #3b82f6; box-shadow: 0 0 10px #3b82f6;"></div></div>
+        </div>
+        <!-- Bar 2 -->
+        <div style="margin-bottom: 10px;">
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Assists p90</span><span style="color:#10b981; font-weight:bold;">84%</span></div>
+          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 84%; background: #10b981;"></div></div>
+        </div>
+        <!-- Bar 3 -->
+        <div>
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Pass Accuracy</span><span style="color:#f43f5e; font-weight:bold;">42%</span></div>
+          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 42%; background: #f43f5e;"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+/* Hub-specific layout locks to prevent ANY scrolling */
+body {
+  overflow: hidden !important;
+}
+.container {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+}
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background: rgba(17, 24, 39, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 16px 0 !important;
+}
+
+/* Futuristic specific styles for Hub */
+.hub-card:hover {
+  transform: translateX(10px);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.1);
+}
+.hub-card:hover:nth-child(2) {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(244,63,94,0.1);
+}
+.hub-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(59,130,246,0.8), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hub-card:nth-child(2)::before {
+  background: linear-gradient(180deg, transparent, rgba(244,63,94,0.8), transparent);
+}
+.hub-card:hover::before { opacity: 1; }
+
+.card-glow-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 80% 50%, rgba(59,130,246,0.15) 0%, transparent 60%);
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.glow-container {
+  position: absolute;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.super-glow {
+  position: absolute;
+  top: -20%; left: -10%;
+  width: 60vw; height: 60vw;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+  filter: blur(80px);
+  animation: float 10s ease-in-out infinite alternate;
+}
+.glow-2 {
+  top: 40%; left: 60%;
+  background: radial-gradient(circle, rgba(244,63,94,0.1) 0%, transparent 70%);
+  animation-delay: -5s;
+}
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10%, 10%) scale(1.1); }
+}
+
+.floating-visuals .float-item {
+  animation: hoverFloat 6s ease-in-out infinite;
+}
+.floating-visuals .radar-float { animation-delay: 0s; }
+.floating-visuals .bars-float { animation-delay: -2s; }
+.floating-visuals .match-float { animation-delay: -4s; }
+
+@keyframes hoverFloat {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@media (max-width: 900px) {
+  .hero { flex-direction: column; text-align: center; }
+  .hero>div { max-width: 100%; text-align: center !important; }
+  .hub-grid { align-items: center; }
+  .floating-visuals { display: none; }
+}
+</style>
+{% endblock %}

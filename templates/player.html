@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <!-- ══════════════════════════════════════
+         HERO
+    ══════════════════════════════════════ -->
+    <section class="hero">
+
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>Football Analytics Platform</span>
+        <span class="eyebrow-dot"></span>
+      </div>
+
+      <h1 class="hero-title">
+        Every Stat.<br/>
+        <span class="gradient-text">Every Player.</span><br/>
+        <span class="hero-title-sub">Any League.</span>
+      </h1>
+
+      <p class="hero-desc">
+        Search any player across Europe's top 5 leagues. Get instant per-90 stats,<br/>
+        position-aware percentile rankings, and professional-grade charts.
+      </p>
+
+      <!-- Capability chips -->
+      <div class="capability-chips">
+        <span class="cap-chip">🎯 Position-Aware Scoring</span>
+        <span class="cap-chip">📈 Per-90 Normalized</span>
+        <span class="cap-chip">🔄 Cross-League Compare</span>
+        <span class="cap-chip">🏆 8 Metrics / Position</span>
+      </div>
+
+      <!-- ── Search Card ── -->
+      <div class="search-card glass-card">
+        <div class="search-card-label">
+          <span class="pulse-dot"></span>
+          Search across Europe's top 5 football leagues
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>League</label>
+            <div class="custom-dd" id="dd-main">
+              <div class="dd-selected" id="dd-sel-main">
+                <img src="https://media.api-sports.io/football/leagues/39.png" style="width:20px;height:20px;object-fit:contain;margin-right:8px;" />
+                <span class="dd-name">Premier League</span>
+                <span class="dd-arrow">▾</span>
+              </div>
+              <div class="dd-menu" id="dd-menu-main"></div>
+            </div>
+            <input type="hidden" id="main-league" value="Premier League" />
+          </div>
+          <div class="filter-group filter-group-season">
+            <label>Season</label>
+            <select class="filter-select" id="main-season">
+              {% for s in seasons %}
+              <option value="{{ s }}" {% if s == "2024-25" %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="main-search-box">
+          <span class="main-search-icon">🔍</span>
+          <input type="text" id="main-search"
+                 placeholder="Search for any player — Mbappé, Salah, Haaland, Bellingham…"
+                 autocomplete="off" />
+          <div class="search-results" id="main-results"></div>
+        </div>
+
+        <div class="search-hints">
+          <span>Try:</span>
+          <button class="hint-btn" data-name="Salah">M. Salah</button>
+          <button class="hint-btn" data-name="Haaland">Haaland</button>
+          <button class="hint-btn" data-name="Mbappe">Mbappé</button>
+          <button class="hint-btn" data-name="Bellingham">Bellingham</button>
+          <button class="hint-btn" data-name="Vinicius">Vinicius Jr.</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         STATS COUNTER STRIP
+    ══════════════════════════════════════ -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <span class="stat-num">5</span>
+        <span class="stat-lbl">Top Leagues</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">5</span>
+        <span class="stat-lbl">Chart Types</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">8</span>
+        <span class="stat-lbl">Metrics / Position</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">P90</span>
+        <span class="stat-lbl">Normalized Stats</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">4</span>
+        <span class="stat-lbl">Players Compared</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SUPPORTED LEAGUES
+    ══════════════════════════════════════ -->
+    <section class="leagues-section">
+      <div class="section-intro">
+        <span class="section-eyebrow">Coverage</span>
+        <h2 class="section-heading">Supported Leagues</h2>
+      </div>
+      <div class="leagues-grid">
+        {% for lg in leagues %}
+        <div class="league-badge">
+          <img class="lb-img" src="{{ lg.logo }}" alt="{{ lg.name }}" />
+          <span class="lb-name">{{ lg.name }}</span>
+          <span class="lb-country">{{ lg.country }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         FEATURES
+    ══════════════════════════════════════ -->
+    <section class="features-section">
+      <div class="section-intro">
+        <span class="section-eyebrow">What you get</span>
+        <h2 class="section-heading">Professional-Grade Analytics</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card glass-card">
+          <div class="fc-icon">🍕</div>
+          <div class="fc-title">Pizza Charts</div>
+          <div class="fc-desc">FBRef-style polar charts showing each metric as a slice, colored by percentile rank.</div>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="fc-icon">📡</div>
+          <div class="fc-title">Radar Comparison</div>
+          <div class="fc-desc">Overlay up to 4 players on a single radar. Instantly see strengths and weaknesses.</div>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="fc-icon">📊</div>
+          <div class="fc-title">Percentile Rankings</div>
+          <div class="fc-desc">DataMB-style heat-mapped table. Each stat colored from red (low) to blue (elite).</div>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="fc-icon">🎯</div>
+          <div class="fc-title">Position-Aware Scoring</div>
+          <div class="fc-desc">Composite score weighted by position. Attackers, midfielders, defenders each scored differently.</div>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="fc-icon">🔄</div>
+          <div class="fc-title">Cross-League Compare</div>
+          <div class="fc-desc">Compare players from different leagues and seasons side by side. No restrictions.</div>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="fc-icon">📈</div>
+          <div class="fc-title">Lollipop Charts</div>
+          <div class="fc-desc">Clean dot-and-stem view showing each metric as a % of the benchmark maximum.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         HOW IT WORKS
+    ══════════════════════════════════════ -->
+    <section class="how-section">
+      <div class="section-intro">
+        <span class="section-eyebrow">Simple</span>
+        <h2 class="section-heading">How it works</h2>
+      </div>
+      <div class="steps-row">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-icon">🔍</div>
+          <div class="step-title">Search a Player</div>
+          <div class="step-desc">Pick a league and season, then type any player name.</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-icon">📊</div>
+          <div class="step-title">View Full Stats</div>
+          <div class="step-desc">Percentile table, pizza chart, radar, and benchmark bars load automatically.</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-icon">⚔️</div>
+          <div class="step-title">Compare (Optional)</div>
+          <div class="step-desc">Add up to 3 more players from any league for a full head-to-head breakdown.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         PLAYER PROFILE (auto-shows after search)
+    ══════════════════════════════════════ -->
+    <section id="profile-section" style="display:none">
+
+      <div class="profile-header glass-card" id="profile-header"></div>
+
+      <div class="charts-loading" id="charts-loading" style="display:none">
+        <div class="mini-spinner"></div>
+        <span>Fetching stats…</span>
+      </div>
+
+      <!-- 1. Top Section: Data Dashboard Table -->
+      <div class="pct-wrapper glass-card" id="pct-wrapper" style="display:none">
+        <div class="pct-title-row">
+          <span class="section-label">📊 Tactical Data Dashboard</span>
+          <span class="pct-legend">
+            <span class="pct-dot" style="background:#ef4444"></span>Low
+            <span class="pct-dot" style="background:#eab308"></span>Mid
+            <span class="pct-dot" style="background:#3b82f6"></span>Elite
+          </span>
+        </div>
+        <div class="pct-note">Percentiles based on position-specific elite benchmarks. Higher bars = better performance.</div>
+        <div class="pct-scroll" id="pct-solo-table"></div>
+      </div>
+
+      <!-- 2. Bottom Section: Visual Duo (Side-by-Side) -->
+      <div class="visuals-row" id="charts-row" style="display:none">
+        <div class="chart-card glass-card" id="card-pizza">
+          <img id="solo-pizza" class="chart-img" alt="Pizza chart" />
+        </div>
+        <div class="chart-card glass-card" id="card-archetype">
+          <img id="solo-archetype" class="chart-img" alt="Archetype radar" />
+        </div>
+      </div>
+
+      <!-- Shared Tooltip for both charts -->
+      <div id="chart-tooltip" class="chart-tooltip">
+        <div class="ct-label" id="ct-label">Stat Name</div>
+        <div class="ct-val">
+          <span id="ct-val">0.00</span>
+          <span class="ct-pct" id="ct-pct">99th Pct</span>
+        </div>
+      </div>
+
+      <!-- Compare strip -->
+      <div class="compare-strip" id="compare-strip" style="display:none">
+        <div class="compare-strip-left">
+          <span class="compare-icon">⚔️</span>
+          <div>
+            <div class="compare-strip-title">Want to compare this player?</div>
+            <div class="compare-strip-sub">Add players from any league or season — up to 4 total</div>
+          </div>
+        </div>
+        <button class="add-compare-btn" id="add-compare-btn">+ Add Player to Compare</button>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════
+         COMPARISON SECTION
+    ══════════════════════════════════════ -->
+    <section id="compare-section" style="display:none">
+
+      <div class="compare-header">
+        <span class="section-label">⚔️ Player Comparison</span>
+        <button class="close-compare-btn" id="close-compare-btn">✕ Exit Compare Mode</button>
+      </div>
+
+      <div class="compare-players-row" id="compare-players-row">
+        <div class="compare-slot primary-slot" id="compare-slot-primary"></div>
+      </div>
+
+      <div class="add-more-row" id="add-more-row">
+        <button class="add-more-btn" id="add-more-btn">+ Add Another Player</button>
+        <span class="add-more-hint" id="add-more-hint">2 of 4 players</span>
+      </div>
+
+      <div class="compare-action-row">
+        <button class="compare-go-btn" id="compare-go-btn" disabled>
+          Generate Comparison →
+        </button>
+      </div>
+
+      <div id="comparison-results" style="display:none">
+
+        <div class="score-cards-row" id="score-cards-row"></div>
+
+        <div id="comparison-mode-label"></div>
+
+        <div class="pct-wrapper glass-card">
+          <div class="pct-title-row">
+            <span class="section-label">📊 Percentile Rankings — All Players</span>
+            <span class="pct-legend">
+              <span class="pct-dot" style="background:#ef4444"></span>Low
+              <span class="pct-dot" style="background:#eab308"></span>Mid
+              <span class="pct-dot" style="background:#3b82f6"></span>Elite
+            </span>
+          </div>
+          <div class="pct-note">Percentiles based on position-specific elite benchmarks per 90 minutes.</div>
+          <div class="pct-scroll" id="pct-compare-table"></div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card glass-card">
+            <div class="chart-label">📡 Radar Comparison</div>
+            <img id="cmp-radar" class="chart-img" alt="Radar comparison" />
+          </div>
+          <div class="chart-card glass-card">
+            <div class="chart-label">📊 Bar Comparison</div>
+            <img id="cmp-bar" class="chart-img" alt="Bar comparison" />
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card glass-card">
+            <div class="chart-label">🎯 Lollipop Percentile</div>
+            <img id="cmp-lollipop" class="chart-img" alt="Lollipop chart" />
+          </div>
+          <div class="chart-card glass-card">
+            <div class="chart-label">📏 Benchmark Bars</div>
+            <img id="cmp-percentile" class="chart-img" alt="Percentile bars" />
+          </div>
+        </div>
+
+        <div class="stat-table-wrapper glass-card">
+          <div class="pct-title-row" style="margin-bottom:16px">
+            <span class="section-label">🆚 Head to Head Stats</span>
+          </div>
+          <div class="table-scroll">
+            <table class="stat-table">
+              <thead><tr id="stat-thead"></tr></thead>
+              <tbody id="stat-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="custom-branding-row glass-card" style="display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;margin-bottom:16px;text-align:center;">
+          <div style="font-size:14px;color:var(--dim)">🎨 Brand Customizer</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted)">Color 1:</label>
+            <input type="color" id="export-color-1" value="#3b82f6" style="cursor:pointer;background:none;border:none;height:24px;width:24px;padding:0;">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted)">Color 2:</label>
+            <input type="color" id="export-color-2" value="#f43f5e" style="cursor:pointer;background:none;border:none;height:24px;width:24px;padding:0;">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted)">Color 3:</label>
+            <input type="color" id="export-color-3" value="#10b981" style="cursor:pointer;background:none;border:none;height:24px;width:24px;padding:0;">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted)">Color 4:</label>
+            <input type="color" id="export-color-4" value="#f59e0b" style="cursor:pointer;background:none;border:none;height:24px;width:24px;padding:0;">
+          </div>
+          <button id="recolor-btn" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;transition:background 0.2s">Apply Colors</button>
+        </div>
+
+        <div class="export-row">
+          <button class="export-btn" id="export-btn">💾 Save Charts as PNG</button>
+        </div>
+      </div>
+    </section>
+
+{% endblock %}
+{% block extra_js %}
+  <div class="loading-overlay" id="loading-overlay" style="display:none">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>Crunching player data…</p>
+      <div class="loading-sub">Powered by Local Dataset</div>
+    </div>
+  </div>
+  <script>
+    window.LEAGUES = {{ leagues | tojson }};
+    window.SEASONS = {{ seasons | tojson }};
+    document.getElementById("nav-player").classList.add("active");
+  </script>
+  <script src="/static/js/app.js"></script>
+{% endblock %}

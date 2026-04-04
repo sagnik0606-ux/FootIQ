@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FootIQ — Football Player Analytics</title>
+  <meta name="description" content="Instant football player stats, per-90 analytics, pizza charts, and cross-league comparison." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* Add subtle active state for nav links */
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--c0); }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- ══ NAVBAR ══ -->
+  {% block navbar %}
+  <nav class="navbar">
+    <div class="nav-logo" style="cursor:pointer" onclick="window.location.href='/'">
+      <span class="logo-icon">⚽</span>
+      <span class="logo-text">FootIQ</span>
+    </div>
+    <div class="nav-links" style="display:flex; gap: 24px;">
+      <a href="/player" id="nav-player">Player Compare</a>
+      <a href="/scout" id="nav-scout">Scout Matcher</a>
+    </div>
+    <div class="nav-right" style="display:flex;align-items:center;gap:12px">
+      <button id="theme-toggle" style="background:transparent;border:1px solid var(--border);color:var(--text);font-size:16px;padding:6px;border-radius:50%;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;transition:background 0.2s">🌙</button>
+      <span class="nav-credit">Built by <strong>Sagnik</strong></span>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <main class="container">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon" style="font-size:18px">⚽</span>
+        <span class="logo-text" style="font-size:16px">FootIQ</span>
+      </div>
+      <div class="footer-credits">
+        Built by <strong class="credit-name">Sagnik</strong>
+        &nbsp;·&nbsp; Powered by <strong>Flask</strong>
+        &nbsp;·&nbsp; Photos via <strong>Wikipedia</strong>
+        &nbsp;·&nbsp; Charts via <strong>Matplotlib</strong>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme initialization
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if(savedTheme === 'light') {
+       document.body.setAttribute('data-theme', 'light');
+       const btn = document.getElementById('theme-toggle');
+       if(btn) btn.textContent = '☀️';
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
