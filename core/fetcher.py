@@ -47,9 +47,18 @@ def get_wikimedia_image(name: str) -> str:
             )
             if r.status_code == 200:
                 d = r.json()
+                # Skip disambiguation pages
+                if d.get("type") == "disambiguation":
+                    return None
                 img = (d.get("originalimage") or d.get("thumbnail") or {}).get("source")
                 if img:
-                    return img
+                    # Reject non-person images: flags, landscapes, city photos, logos
+                    bad = ["Flag_of_", "flag_of_", "coat_of_arms", "Coat_of_arms",
+                           "emblem", "Logo", "logo", "shield", "Shield",
+                           "Anderson,_South_Carolina", "Anderson_County",
+                           "city", "City", "town", "Town", "stadium", "Stadium"]
+                    if not any(b in img for b in bad):
+                        return img
         except:
             pass
         return None
