@@ -278,23 +278,49 @@ def compute_similarity(scaled_target: list, scaled_candidate: list) -> float:
 
 
 def get_archetype_scores(norm: dict) -> dict:
-    buckets = {
-        "Attack":      [("goals_p90", 0.6), ("shots_on_p90", 0.4)],
-        "Creation":    [("assists_p90", 0.5), ("key_passes_p90", 0.5)],
-        "Progression": [("dribbles_p90", 0.6), ("pass_accuracy", 0.4)],
-        "Technical":   [("duel_win_pct", 0.7), ("fouls_drawn_p90", 0.3)],
-        "Defense":     [("tackles_p90", 0.5), ("interceptions_p90", 0.5)],
+    """
+    Compute five archetype dimension scores in [0, 1].
+
+    Each bucket uses metrics that are reliably populated across the dataset.
+    Normalization maxes are set to ~90th-percentile values so most players
+    land in a meaningful range rather than clustering at 0 or 1.
+    """
+    # ── Attack: goal threat ──────────────────────────────────────────────────
+    goals   = (norm.get("goals_p90",    0) or 0)
+    xg      = (norm.get("xg_p90",       0) or 0)
+    sot     = (norm.get("shots_on_p90", 0) or 0)
+    attack  = (goals * 0.45 + xg * 0.35 + sot * 0.20) / 0.65   # max ≈ 0.65
+
+    # ── Creation: chance creation ────────────────────────────────────────────
+    kp      = (norm.get("key_passes_p90", 0) or 0)
+    ast     = (norm.get("assists_p90",    0) or 0)
+    xag     = (norm.get("xag_p90",        0) or 0)
+    sca     = (norm.get("sca90",          0) or 0)
+    creation = (kp * 0.30 + ast * 0.25 + xag * 0.25 + sca * 0.20) / 1.80  # max ≈ 1.80
+
+    # ── Progression: ball advancement ───────────────────────────────────────
+    prog_c  = (norm.get("progressive_carries_p90", 0) or 0)
+    prog_p  = (norm.get("progressive_passes_p90",  0) or 0)
+    drib    = (norm.get("dribbles_p90",             0) or 0)
+    progression = (prog_c * 0.40 + prog_p * 0.35 + drib * 0.25) / 5.50  # max ≈ 5.50
+
+    # ── Technical: ball control & duels ─────────────────────────────────────
+    pass_acc = (norm.get("pass_accuracy", 0) or 0) / 100.0   # normalise % → [0,1]
+    drib2    = (norm.get("dribbles_p90",  0) or 0)
+    aerial   = (norm.get("aerial_win_pct",0) or 0) / 100.0
+    technical = (pass_acc * 0.50 + (drib2 / 3.0) * 0.30 + aerial * 0.20)  # max ≈ 1.0
+
+    # ── Defense: defensive actions ───────────────────────────────────────────
+    tkl     = (norm.get("tackles_p90",       0) or 0)
+    inter   = (norm.get("interceptions_p90", 0) or 0)
+    clr     = (norm.get("clearances_p90",    0) or 0)
+    blk     = (norm.get("blocks_p90",        0) or 0)
+    defense = (tkl * 0.35 + inter * 0.30 + clr * 0.20 + blk * 0.15) / 2.80  # max ≈ 2.80
+
+    return {
+        "Attack":      round(min(max(attack,      0.0), 1.0), 4),
+        "Creation":    round(min(max(creation,    0.0), 1.0), 4),
+        "Progression": round(min(max(progression, 0.0), 1.0), 4),
+        "Technical":   round(min(max(technical,   0.0), 1.0), 4),
+        "Defense":     round(min(max(defense,     0.0), 1.0), 4),
     }
-    maxes = {"Attack": 0.8, "Creation": 1.5, "Progression": 40.0, "Technical": 45.0, "Defense": 3.5}
-    scores = {}
-    for label, metrics in buckets.items():
-        total = 0.0
-        for m, weight in metrics:
-            val = norm.get(m, 0) or 0
-            if "accuracy" in m or "pct" in m:
-                total += (val / 100.0) * weight
-            else:
-                total += val * weight
-        mx = maxes.get(label, 1.0)
-        scores[label] = min(total / mx, 1.0) if mx > 0 else 0.0
-    return scores

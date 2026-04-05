@@ -6,7 +6,7 @@
   <div class="super-glow glow-2"></div>
 </div>
 
-<section class="hero" style="height: calc(100vh - 80px); display: flex; max-width: 1200px; margin: 0 auto; gap: 40px; align-items: center; padding-left: 40px; padding-right: 40px; position: relative; z-index: 2; overflow: hidden;">
+<section class="hero" style="flex: 1; display: flex; max-width: 1200px; margin: 0 auto; gap: 40px; align-items: center; padding-left: 40px; padding-right: 40px; position: relative; z-index: 2; overflow: hidden; width: 100%;">
   
   <!-- Left Side: Copy and Cards -->
   <div style="flex: 1; max-width: 500px; text-align: left; display: flex; flex-direction: column; justify-content: center;">
@@ -46,50 +46,68 @@
   </div>
 
   <!-- Right Side: Floating High-Tech Visuals -->
-  <div style="flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;" class="floating-visuals">
-    <div style="width: 100%; max-width: 450px; height: 450px; position: relative; transform: scale(0.9);">
-      
-      <!-- Big Radar Mockup -->
-      <div class="float-item radar-float" style="position: absolute; top: 0; right: 0; width: 240px; height: 240px; background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(59,130,246,0.3); border-radius: 50%; box-shadow: 0 0 50px rgba(59,130,246,0.2); display: flex; align-items: center; justify-content: center; z-index: 3;">
-        <div style="width: 180px; height: 180px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); position: relative;">
-          <!-- Concentric circles -->
-          <div style="position:absolute; top:22px; left:22px; right:22px; bottom:22px; border-radius:50%; border: 1px solid rgba(255,255,255,0.1);"></div>
-          <div style="position:absolute; top:45px; left:45px; right:45px; bottom:45px; border-radius:50%; border: 1px solid rgba(255,255,255,0.1);"></div>
-          <!-- Hexagon polygon shape mock -->
-          <svg width="180" height="180" style="position:absolute; top:0; left:0; filter: drop-shadow(0 0 15px rgba(59,130,246,0.8));">
-            <polygon points="90,15 160,50 150,135 90,170 30,115 45,45" fill="rgba(59,130,246,0.3)" stroke="#3b82f6" stroke-width="2"/>
-            <polygon points="90,45 135,70 125,108 90,144 54,117 63,63" fill="rgba(244,63,94,0.3)" stroke="#f43f5e" stroke-width="2"/>
+  <div class="floating-visuals" style="flex: 1; height: 100%; display: flex; align-items: center; justify-content: flex-end; position: relative;">
+    <!-- Canvas is 480px wide, right edge flush with section padding -->
+    <div style="width: 480px; height: 420px; position: relative; flex-shrink: 0;">
+
+      <!-- Radar circle — top right -->
+      <div class="float-item radar-float" style="position: absolute; top: 10px; right: 0; width: 250px; height: 250px; background: rgba(13,18,32,0.85); backdrop-filter: blur(16px); border: 1px solid rgba(59,130,246,0.35); border-radius: 50%; box-shadow: 0 0 60px rgba(59,130,246,0.25), inset 0 0 40px rgba(59,130,246,0.05); display: flex; align-items: center; justify-content: center; z-index: 3;">
+        <div style="width: 190px; height: 190px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08); position: relative;">
+          <div style="position:absolute; top:24px; left:24px; right:24px; bottom:24px; border-radius:50%; border: 1px solid rgba(255,255,255,0.07);"></div>
+          <div style="position:absolute; top:48px; left:48px; right:48px; bottom:48px; border-radius:50%; border: 1px solid rgba(255,255,255,0.07);"></div>
+          <svg width="190" height="190" style="position:absolute; top:0; left:0; filter: drop-shadow(0 0 18px rgba(59,130,246,0.9));">
+            <polygon points="95,12 168,52 158,142 95,178 28,120 46,44" fill="rgba(59,130,246,0.25)" stroke="#3b82f6" stroke-width="1.5"/>
+            <polygon points="95,42 140,68 132,114 95,150 56,122 66,66" fill="rgba(168,85,247,0.2)" stroke="#a855f7" stroke-width="1.5"/>
+            <polygon points="95,62 122,80 116,106 95,128 72,112 78,80" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="1"/>
+          </svg>
+          <!-- axis lines -->
+          <svg width="190" height="190" style="position:absolute; top:0; left:0; opacity:0.15;">
+            <line x1="95" y1="0" x2="95" y2="190" stroke="white" stroke-width="1"/>
+            <line x1="0" y1="95" x2="190" y2="95" stroke="white" stroke-width="1"/>
+            <line x1="20" y1="20" x2="170" y2="170" stroke="white" stroke-width="1"/>
+            <line x1="170" y1="20" x2="20" y2="170" stroke="white" stroke-width="1"/>
           </svg>
         </div>
-        <div style="position:absolute; top:-15px; right:-15px; background:#1e293b; padding:6px 12px; border-radius:30px; font-size:11px; font-weight:bold; border:1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">Composite: 91.8</div>
+        <!-- Score badge -->
+        <div style="position:absolute; top:-14px; right:-10px; background:linear-gradient(135deg,#1e293b,#0f172a); padding:5px 14px; border-radius:30px; font-size:11px; font-weight:800; border:1px solid rgba(59,130,246,0.5); box-shadow: 0 4px 20px rgba(59,130,246,0.3); color:#93c5fd; letter-spacing:0.5px;">Composite: 91.8</div>
+        <!-- Player label -->
+        <div style="position:absolute; bottom:-14px; left:50%; transform:translateX(-50%); background:rgba(168,85,247,0.15); padding:4px 12px; border-radius:20px; font-size:10px; font-weight:700; border:1px solid rgba(168,85,247,0.4); color:#c084fc; white-space:nowrap;">V. Gyökeres</div>
       </div>
 
-      <!-- Match score mockup -->
-      <div class="float-item match-float" style="position: absolute; top: 120px; left: 10px; background: rgba(244,63,94,0.1); padding: 12px 20px; border-radius: 100px; border: 1px solid rgba(244,63,94,0.3); display: flex; align-items: center; gap: 10px; z-index: 5;">
-        <div style="width: 34px; height: 34px; background: rgba(244,63,94,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔥</div>
+      <!-- Match score pill — middle left -->
+      <div class="float-item match-float" style="position: absolute; top: 140px; left: 0; background: linear-gradient(135deg, rgba(244,63,94,0.12), rgba(244,63,94,0.06)); padding: 14px 22px; border-radius: 100px; border: 1px solid rgba(244,63,94,0.35); display: flex; align-items: center; gap: 12px; z-index: 5; box-shadow: 0 8px 32px rgba(244,63,94,0.15), inset 0 1px 0 rgba(255,255,255,0.05);">
+        <div style="width: 38px; height: 38px; background: rgba(244,63,94,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid rgba(244,63,94,0.3);">🔥</div>
         <div>
-          <div style="font-size: 10px; text-transform: uppercase; color: #f43f5e; letter-spacing: 1px;">Top Scout Match</div>
-          <div style="font-size: 18px; font-weight: 800; color: white;">98.4% Similarity</div>
+          <div style="font-size: 9px; text-transform: uppercase; color: #f43f5e; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 2px;">Top Scout Match</div>
+          <div style="font-size: 20px; font-weight: 900; color: white; letter-spacing: -0.5px;">98.4% <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,0.5);">similarity</span></div>
         </div>
       </div>
 
-      <!-- Data Bar Mockup -->
-      <div class="float-item bars-float" style="position: absolute; bottom: 0; right: 40px; width: 260px; background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 4;">
-        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px;">Percentile Rankings</div>
+      <!-- Percentile bars card — bottom right, right edge flush -->
+      <div class="float-item bars-float" style="position: absolute; bottom: 0; right: 0; width: 275px; background: rgba(13,18,32,0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px; box-shadow: 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05); z-index: 4;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom: 14px;">
+          <div style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></div>
+          <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight:700;">Percentile Rankings</div>
+        </div>
         <!-- Bar 1 -->
-        <div style="margin-bottom: 10px;">
-          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Goals p90</span><span style="color:#3b82f6; font-weight:bold;">99%</span></div>
-          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 99%; background: #3b82f6; box-shadow: 0 0 10px #3b82f6;"></div></div>
+        <div style="margin-bottom: 12px;">
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; font-weight:600;"><span style="color:rgba(255,255,255,0.7);">Goals p90</span><span style="color:#3b82f6;">99th</span></div>
+          <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 99%; background: linear-gradient(90deg,#3b82f6,#60a5fa); box-shadow: 0 0 12px rgba(59,130,246,0.6);"></div></div>
         </div>
         <!-- Bar 2 -->
-        <div style="margin-bottom: 10px;">
-          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Assists p90</span><span style="color:#10b981; font-weight:bold;">84%</span></div>
-          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 84%; background: #10b981;"></div></div>
+        <div style="margin-bottom: 12px;">
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; font-weight:600;"><span style="color:rgba(255,255,255,0.7);">Assists p90</span><span style="color:#10b981;">84th</span></div>
+          <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 84%; background: linear-gradient(90deg,#10b981,#34d399);"></div></div>
         </div>
         <!-- Bar 3 -->
+        <div style="margin-bottom: 12px;">
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; font-weight:600;"><span style="color:rgba(255,255,255,0.7);">xG p90</span><span style="color:#a855f7;">91st</span></div>
+          <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 91%; background: linear-gradient(90deg,#a855f7,#c084fc);"></div></div>
+        </div>
+        <!-- Bar 4 -->
         <div>
-          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;"><span>Pass Accuracy</span><span style="color:#f43f5e; font-weight:bold;">42%</span></div>
-          <div style="height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 42%; background: #f43f5e;"></div></div>
+          <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; font-weight:600;"><span style="color:rgba(255,255,255,0.7);">Pass Acc.</span><span style="color:#f43f5e;">42nd</span></div>
+          <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;"><div style="height: 100%; width: 42%; background: linear-gradient(90deg,#f43f5e,#fb7185);"></div></div>
         </div>
       </div>
 
@@ -98,25 +116,34 @@
 </section>
 
 <style>
-/* Hub-specific layout locks to prevent ANY scrolling */
-body {
+/* Hub-specific: full-height flex column, no scroll */
+html, body {
+  height: 100%;
   overflow: hidden !important;
 }
+body {
+  display: flex;
+  flex-direction: column;
+}
 .container {
+  flex: 1;
   padding: 0 !important;
   margin: 0 !important;
   max-width: 100% !important;
+  display: flex;
+  flex-direction: column;
 }
 footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 10;
-  background: rgba(17, 24, 39, 0.8) !important;
+  position: static !important;
+  flex-shrink: 0;
+  background: rgba(17, 24, 39, 0.6) !important;
   backdrop-filter: blur(20px) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-  padding: 16px 0 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 14px 0 !important;
+}
+footer .footer-inner {
+  max-width: 1200px !important;
+  padding: 0 40px !important;
 }
 
 /* Futuristic specific styles for Hub */
