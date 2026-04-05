@@ -571,8 +571,7 @@ def api_scout():
 
         candidates.sort(key=lambda x: x["sim_score"], reverse=True)
         top_matches = candidates[:15]
-        for m in top_matches:
-            m["photo"] = get_wikimedia_image(m["name"])
+        # Images fetched client-side asynchronously via /api/player-image
         return jsonify({
             "target": {
                 "id": target_norm["id"],

@@ -35,7 +35,6 @@ def get_wikimedia_image(name: str) -> str:
     def _rest(title: str) -> str | None:
         try:
             slug = title.strip().replace(" ", "_")
-            # Try with URL encoding for non-ASCII characters
             from urllib.parse import quote
             encoded_slug = quote(slug, safe="")
             r = requests.get(
@@ -47,6 +46,28 @@ def get_wikimedia_image(name: str) -> str:
                 img = (d.get("originalimage") or d.get("thumbnail") or {}).get("source")
                 if img:
                     return img
+        except:
+            pass
+        return None
+
+    def _search_wiki(query: str) -> str | None:
+        """Use Wikipedia's opensearch to find the right article title, then fetch image."""
+        try:
+            from urllib.parse import quote
+            r = requests.get(
+                f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote(query)}&srlimit=3&format=json",
+                headers=HEADERS, timeout=5
+            )
+            if r.status_code == 200:
+                results = r.json().get("query", {}).get("search", [])
+                for result in results:
+                    title = result.get("title", "")
+                    # Only use results that look like footballer articles
+                    snippet = result.get("snippet", "").lower()
+                    if any(k in snippet for k in ["football", "soccer", "midfielder", "forward", "defender", "striker", "winger"]):
+                        img = _rest(title)
+                        if img:
+                            return img
         except:
             pass
         return None
@@ -68,7 +89,10 @@ def get_wikimedia_image(name: str) -> str:
            _rest(f"{clean_name} (soccer)") or
            # ASCII fallback for accented names like Demirović → Demirovic
            (None if ascii_name == clean_name else _rest(ascii_name)) or
-           (None if ascii_name == clean_name else _rest(f"{ascii_name} (footballer)")))
+           (None if ascii_name == clean_name else _rest(f"{ascii_name} (footballer)")) or
+           # Wikipedia search fallback — finds correct article even for less-known players
+           _search_wiki(f"{clean_name} footballer") or
+           _search_wiki(f"{ascii_name} footballer"))
 
     if img:
         cache.put(cache_key, img)

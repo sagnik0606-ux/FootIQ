@@ -114,6 +114,25 @@ goBtn.addEventListener("click", async () => {
     }
 });
 
+function _scoutInitials(name, size=50) {
+    const initials = name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+    const colors = ["#3b82f6","#8b5cf6","#10b981","#f59e0b","#ef4444","#06b6d4"];
+    const color = colors[name.charCodeAt(0) % colors.length];
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='${color}22'/><circle cx='${size/2}' cy='${size/2}' r='${size/2-1}' fill='none' stroke='${color}' stroke-width='1.5'/><text x='${size/2}' y='${size/2+size*0.15}' text-anchor='middle' font-family='system-ui,sans-serif' font-size='${size*0.3}' font-weight='700' fill='${color}'>${initials}</text></svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+async function _loadScoutImage(name, imgEl) {
+    try {
+        const r = await fetch(`/api/player-image?name=${encodeURIComponent(name)}`);
+        if (r.ok) {
+            const d = await r.json();
+            if (d.url) { imgEl.src = d.url; return; }
+        }
+    } catch {}
+    imgEl.src = _scoutInitials(name);
+}
+
 function renderMatches(matches, widened) {
     const notice = widened
         ? `<div style="text-align:center;color:var(--muted);font-size:13px;padding:8px 0 16px">Age filter relaxed to show best available matches</div>`
@@ -129,12 +148,11 @@ function renderMatches(matches, widened) {
     matchesList.innerHTML = notice + matches.map((m, i) => `
         <div class="glass-card" style="display:flex;align-items:center;padding:20px;gap:20px;border-color: ${i===0 ? 'var(--c0)' : 'var(--border)'}; transform:none; cursor:default">
             <div style="font-size:24px;font-weight:900;color:var(--dim);width:30px">#${i+1}</div>
-            <img src="${m.photo}" style="width:50px;height:50px;border-radius:50%;object-fit:cover" onerror="this.src='https://media.api-sports.io/football/players/0.png'" />
+            <img data-name="${m.name}" src="${_scoutInitials(m.name)}" style="width:50px;height:50px;border-radius:50%;object-fit:cover" />
             <div style="flex:1">
                 <div style="font-size:18px;font-weight:700;color:var(--text)">${m.name} <span style="font-size:12px;color:var(--muted);font-weight:500;margin-left:6px">(Age ${m.age})</span></div>
                 <div style="font-size:13px;color:var(--dim)">${m.league} · ${m.team}</div>
             </div>
-            
             <div style="display:flex;gap:24px;align-items:center;">
                 <div style="text-align:right">
                     <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)">Composite Score</div>
@@ -148,8 +166,14 @@ function renderMatches(matches, widened) {
             </div>
         </div>
     `).join("");
-    
+
+    // Show results immediately, then load images async
     resultsSection.style.display = "block";
     resultsSection.querySelectorAll('.scroll-animate').forEach(el => el.classList.add('scroll-animate-visible'));
     setTimeout(() => resultsSection.scrollIntoView({ behavior:"smooth", block:"start" }), 100);
+
+    // Load images in background — non-blocking
+    matchesList.querySelectorAll("img[data-name]").forEach(img => {
+        _loadScoutImage(img.dataset.name, img);
+    });
 }
