@@ -12,7 +12,7 @@ A Python/Flask web application for comprehensive football analytics powered by F
 - **Season Comparison** — Compare player performance across multiple seasons (4 seasons of data)
 - **Interactive Dashboards** — Multi-league support (Premier League, La Liga, Serie A, Bundesliga, Ligue 1)
 
-### Scout Matching Engine ⭐ **[CORE FEATURE]**
+### Scout Matching Engine **[CORE FEATURE]**
 - **15 Closest Players Similarity Matching** — Advanced player recommendation system that finds the 15 most similar players based on:
   - **Similarity Index Calculation** — Multi-dimensional performance comparison using normalized metrics
   - **Position-Based Matching** — Matches only players in the same position group (Attacker, Midfielder, Defender, Goalkeeper)
