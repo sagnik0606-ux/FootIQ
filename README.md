@@ -475,10 +475,8 @@ No specific license. Contact the author for usage rights.
 
 ## 👨‍💻 Author
 
-**Sagnik**  
-GitHub: [@sagnik0606-ux](https://github.com/sagnik0606-ux)  
-Email: basu.sagnik0606@gmail.com
-
+**Vector**  
+GitHub: [@HalcyonVector](https://github.com/HalcyonVector)  
 ---
 
 ## 🤝 Contributing
@@ -496,7 +494,7 @@ Want to improve FootIQ?
 ## 🙋 Support
 
 Found a bug or have questions?  
-[Open an issue](https://github.com/sagnik0606-ux/FootIQ/issues) on GitHub.
+[Open an issue](https://github.com/HalcyonVector/FootIQ/issues) on GitHub.
 
 ---
 
