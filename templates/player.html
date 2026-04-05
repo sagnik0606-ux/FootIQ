@@ -219,15 +219,25 @@
       <div class="pct-wrapper glass-card" id="pct-wrapper" style="display:none">
         <div class="pct-title-row">
           <span class="section-label">📊 Tactical Data Dashboard</span>
-          <span class="pct-legend">
-            <span class="pct-dot" style="background:#ef4444"></span>Low
-            <span class="pct-dot" style="background:#eab308"></span>Mid
-            <span class="pct-dot" style="background:#3b82f6"></span>Elite
-          </span>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <label class="adj-toggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted)">
+              <input type="checkbox" id="league-adj-toggle" checked style="accent-color:#3b82f6;width:15px;height:15px;" />
+              ⚖️ League-adjusted
+            </label>
+            <span class="pct-legend">
+              <span class="pct-dot" style="background:#ef4444"></span>Low
+              <span class="pct-dot" style="background:#eab308"></span>Mid
+              <span class="pct-dot" style="background:#3b82f6"></span>Elite
+            </span>
+          </div>
         </div>
+        <div id="adj-badge" style="display:none;margin-bottom:8px;padding:5px 12px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);border-radius:20px;color:#93c5fd;font-size:12px;width:fit-content;">⚖️ League-adjusted</div>
         <div class="pct-note">Percentiles based on position-specific elite benchmarks. Higher bars = better performance.</div>
         <div class="pct-scroll" id="pct-solo-table"></div>
       </div>
+
+      <!-- Insights section -->
+      <div id="insights-section" style="display:none;margin-bottom:16px"></div>
 
       <!-- 2. Bottom Section: Visual Duo (Side-by-Side) -->
       <div class="visuals-row" id="charts-row" style="display:none">

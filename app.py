@@ -14,6 +14,9 @@ from core.scorer import (compute_composite_score, compute_composite_score_from_c
                           get_radar_data,
                           get_position_config, get_archetype_scores,
                           get_season_metric_set, get_comparison_metric_set)
+from core.adjuster import adjust_norm
+from core.archetype import classify
+from core.insights import generate_insights
 from visuals.radar import generate_radar
 from visuals.bar import generate_bar
 from visuals.percentile import generate_percentile
@@ -275,6 +278,8 @@ def api_player_stats():
         season    = body.get("season", "2024-25")
         color1    = body.get("c1")
 
+        adjusted  = body.get("adjusted", True)
+
         raw = get_player_stats(player_id, league, season)
         if not raw:
             return jsonify({"error": f"No stats found for player {player_id} in {season}."}), 400
@@ -282,20 +287,29 @@ def api_player_stats():
              return jsonify({"error": f"API Restriction: {raw['error']}"}), 400
 
         norm  = normalize_stats(raw)
+        if adjusted:
+            norm = adjust_norm(norm, league)
+
         cfg   = get_season_metric_set(season, norm.get("position", "attacker"), norm)
         score = compute_composite_score_from_cfg(norm, cfg)
 
         labels, raw_vals, scaled = get_radar_data(norm, cfg)
         stat_rows = [
-            {"label": lbl, "value": round(v, 2), "percentile": round(s * 100)}
+            {"label": lbl, "value": round(v, 3), "percentile": round(s * 100)}
             for lbl, v, s in zip(cfg["labels"], raw_vals, scaled)
         ]
 
+        archetype_scores = get_archetype_scores(norm)
+        archetype = classify(archetype_scores)
+        insights  = generate_insights(norm, league, season, raw.get("position", ""))
+
         return jsonify({
-            "player":           _player_summary(raw, score),
-            "stat_rows":        stat_rows,
+            "player":            _player_summary(raw, score),
+            "stat_rows":         stat_rows,
             "season_metric_set": season,
-            "archetype_scores": get_archetype_scores(norm),
+            "archetype_scores":  archetype_scores,
+            "archetype":         archetype,
+            "insights":          insights,
             "charts": {
                 "solo_radar":    generate_solo_radar(norm, raw["name"], color_override=color1),
                 "archetype":     generate_archetype_radar(norm, raw["name"], color_override=color1),
@@ -339,6 +353,8 @@ def api_compare():
         if len(specs) > 4:
             return jsonify({"error": "Maximum 4 players allowed."}), 400
 
+        adjusted = body.get("adjusted", True)
+
         # Fetch & normalize all players
         raws, norms = [], []
         for i, spec in enumerate(specs):
@@ -349,7 +365,10 @@ def api_compare():
                              f"(ID {spec['id']}, league {spec['league']}, season {spec['season']})."
                 }), 400
             raws.append(raw)
-            norms.append(normalize_stats(raw))
+            n = normalize_stats(raw)
+            if adjusted:
+                n = adjust_norm(n, str(spec["league"]))
+            norms.append(n)
 
         # Determine comparison metric set based on all player seasons + primary position
         seasons = [str(spec["season"]) for spec in specs]
@@ -393,8 +412,16 @@ def api_compare():
         winner_idx = scores.index(max(scores))
         names      = [r["name"] for r in raws]
 
+        players_out = []
+        for r, s, n, spec in zip(raws, scores, norms, specs):
+            p = _player_summary(r, s)
+            p["archetype"] = classify(get_archetype_scores(n))
+            p["insights"]  = generate_insights(n, str(spec["league"]), str(spec["season"]),
+                                               r.get("position", ""), top_n=1)
+            players_out.append(p)
+
         return jsonify({
-            "players":       [_player_summary(r, s) for r, s in zip(raws, scores)],
+            "players":       players_out,
             "scores":        scores,
             "winner_idx":    winner_idx,
             "stat_table":    stat_table,

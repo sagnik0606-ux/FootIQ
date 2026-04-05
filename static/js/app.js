@@ -11,6 +11,7 @@
 let primaryPlayer  = null;   // {id, name, photo, position, team, team_logo, age, nationality, appearances}
 let primaryLeague  = "Premier League";
 let primarySeason  = "2024-25";
+let leagueAdjusted = true;   // league difficulty adjustment toggle state
 
 let compareSlots   = [];     // [{slotEl, leagueId, seasonVal, player}]
 
@@ -179,6 +180,7 @@ async function selectPrimaryPlayer(player) {
         player_id: player.id, 
         league: primaryLeague, 
         season: primarySeason,
+        adjusted: leagueAdjusted,
         c1: c1
       }),
     });
@@ -209,13 +211,20 @@ function resetPrimaryPlayer() {
   if (strip) strip.classList.remove("visible");
 }
 
+function _initialsAvatar(name, size=80) {
+  const initials = name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+  const colors = ["#3b82f6","#8b5cf6","#10b981","#f59e0b","#ef4444","#06b6d4"];
+  const color = colors[name.charCodeAt(0) % colors.length];
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='${color}22'/><circle cx='${size/2}' cy='${size/2}' r='${size/2-1}' fill='none' stroke='${color}' stroke-width='1.5'/><text x='${size/2}' y='${size/2+size*0.15}' text-anchor='middle' font-family='system-ui,sans-serif' font-size='${size*0.3}' font-weight='700' fill='${color}'>${initials}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 function renderProfileHeader(player) {
-  // These will be populated after /api/player-stats responds (player from search won't have them yet)
-  // We'll re-render if needed; for now render what we have
+  const initialSrc = player.photo || _initialsAvatar(player.name);
   document.getElementById("profile-header").innerHTML = `
     <img class="profile-photo"
-         src="${player.photo||''}"
-         onerror="this.src='data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%231e2535'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2364748b'/%3E%3Cellipse cx='40' cy='65' rx='22' ry='16' fill='%2364748b'/%3E%3C/svg%3E'"
+         src="${initialSrc}"
+         onerror="this.src='${_initialsAvatar(player.name)}'"
          alt="${player.name}" />
     <div class="profile-info">
       <div class="profile-name">${player.name}</div>
@@ -285,12 +294,7 @@ async function applyWikiImage(name, ...imgEls) {
   if (url) {
     imgEls.forEach(el => { if (el) el.src = url; });
   } else {
-    // Generate initials avatar as fallback
-    const initials = name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
-    const colors = ["#3b82f6","#8b5cf6","#10b981","#f59e0b","#ef4444","#06b6d4"];
-    const color = colors[name.charCodeAt(0) % colors.length];
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='${color}22'/><circle cx='40' cy='40' r='39' fill='none' stroke='${color}' stroke-width='1.5'/><text x='40' y='46' text-anchor='middle' font-family='system-ui,sans-serif' font-size='24' font-weight='700' fill='${color}'>${initials}</text></svg>`;
-    const dataUrl = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    const dataUrl = _initialsAvatar(name, 80);
     imgEls.forEach(el => { if (el) el.src = dataUrl; });
   }
 }
@@ -302,13 +306,21 @@ function renderSoloStats(data) {
   const profilePhoto = document.querySelector(".profile-photo");
   if (profilePhoto) applyWikiImage(player.name, profilePhoto);
 
-  // Update score chip
+  // Update score chip — include archetype badge
+  const archetypeHtml = data.archetype
+    ? `<div class="archetype-badge" style="margin-top:6px;font-size:12px;color:var(--muted);text-align:center;">${data.archetype}</div>`
+    : "";
   document.getElementById("primary-score-chip").outerHTML = `
     <div class="profile-score" id="primary-score-chip">
       <div class="score-num">${player.score}</div>
       <div class="score-lbl">Composite Score</div>
+      ${archetypeHtml}
     </div>
   `;
+
+  // Show/hide adj-badge
+  const adjBadge = document.getElementById("adj-badge");
+  if (adjBadge) adjBadge.style.display = leagueAdjusted ? "block" : "none";
 
   // Update season stats chips (goals, assists, cards)
   updateProfileSeasonStats(player);
@@ -333,6 +345,32 @@ function renderSoloStats(data) {
     photo: player.photo, stats: stat_rows,
   }], "pct-solo-table");
   pctWrapper.style.display = "block";
+
+  // Render insight chips
+  const insightsEl = document.getElementById("insights-section");
+  if (insightsEl) {
+    const insights = data.insights || [];
+    if (insights.length) {
+      insightsEl.style.display = "block";
+      insightsEl.innerHTML = `
+        <div class="glass-card" style="padding:16px 20px">
+          <div class="pct-title-row" style="margin-bottom:12px">
+            <span class="section-label">💡 Smart Insights</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${insights.map(ins => {
+              const isNeg = ins.startsWith("Below average");
+              const bg    = isNeg ? "rgba(234,179,8,0.10)" : "rgba(16,185,129,0.10)";
+              const border= isNeg ? "rgba(234,179,8,0.35)"  : "rgba(16,185,129,0.35)";
+              const color = isNeg ? "#eab308"                : "#10b981";
+              return `<div style="padding:8px 14px;background:${bg};border:1px solid ${border};border-radius:20px;color:${color};font-size:13px;">${ins}</div>`;
+            }).join("")}
+          </div>
+        </div>`;
+    } else {
+      insightsEl.style.display = "none";
+    }
+  }
 
   // Solo Visual Duo (Pizza + Archetype)
   const pizza = document.getElementById("solo-pizza");
@@ -611,7 +649,7 @@ compareGoBtn.addEventListener("click", async () => {
     const c4 = document.getElementById("export-color-4")?.value || "#f59e0b";
     const res  = await fetch("/api/compare", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ players: specs, c1: c1, c2: c2, c3: c3, c4: c4 }),
+      body: JSON.stringify({ players: specs, adjusted: leagueAdjusted, c1: c1, c2: c2, c3: c3, c4: c4 }),
     });
     const data = await res.json();
     if (!res.ok || data.error) { showToast(data.error || "Comparison failed."); return; }
@@ -633,6 +671,12 @@ function renderComparison(data) {
   document.getElementById("score-cards-row").innerHTML = players.map((pl, i) => {
     const isWinner = i === winner_idx;
     const color = colors[i] || colors[0];
+    const archetypeHtml = pl.archetype
+      ? `<div style="font-size:11px;color:var(--muted);margin-top:6px;">${pl.archetype}</div>`
+      : "";
+    const insightHtml = (pl.insights && pl.insights[0])
+      ? `<div style="margin-top:8px;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:10px;font-size:11px;color:var(--muted);text-align:center;max-width:160px;">${pl.insights[0]}</div>`
+      : "";
     return `
     <div class="score-card" data-idx="${i}" style="
       flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -651,6 +695,8 @@ function renderComparison(data) {
       <div style="font-size:15px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px;">${pl.name}</div>
       <div style="font-size:32px;font-weight:900;color:${color};line-height:1;">${scores[i]}</div>
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:4px;">Composite Score</div>
+      ${archetypeHtml}
+      ${insightHtml}
     </div>`;
   }).join("");
 
@@ -798,6 +844,13 @@ document.querySelector(".search-card")?.addEventListener("click", e => e.stopPro
 // ─────────────────────────────────────────────────────────────────────────────
 initMainDropdown();
 initMainSearch();
+
+// League adjustment toggle
+document.addEventListener("change", e => {
+  if (e.target.id !== "league-adj-toggle") return;
+  leagueAdjusted = e.target.checked;
+  if (primaryPlayer) selectPrimaryPlayer(primaryPlayer);
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Interactive Chart Logic (Angle-based Tooltips)
