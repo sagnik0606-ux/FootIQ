@@ -27,8 +27,12 @@ def get_wikimedia_image(name: str) -> str:
     cache_key = f"wiki_img_{name.replace(' ', '_')}"
     cached = cache.get(cache_key)
     if cached and cached.startswith("http"):
-        return cached
-    # Don't use cached empty strings — retry in case the fix now finds an image
+        # Reject known bad image patterns (flags, landscapes, logos)
+        bad_patterns = ["Flag_of_", "flag_of_", "coat_of_arms", "Coat_of_arms",
+                        "emblem", "Emblem", "logo", "Logo", "shield", "Shield"]
+        if not any(p in cached for p in bad_patterns):
+            return cached
+    # Don't use cached empty strings or bad images — retry
 
     HEADERS = {"User-Agent": "FootIQ/1.0 (football analytics; https://github.com/footiq)"}
 
@@ -55,16 +59,20 @@ def get_wikimedia_image(name: str) -> str:
         try:
             from urllib.parse import quote
             r = requests.get(
-                f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote(query)}&srlimit=3&format=json",
+                f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote(query)}&srlimit=5&format=json",
                 headers=HEADERS, timeout=5
             )
             if r.status_code == 200:
                 results = r.json().get("query", {}).get("search", [])
                 for result in results:
                     title = result.get("title", "")
-                    # Only use results that look like footballer articles
                     snippet = result.get("snippet", "").lower()
-                    if any(k in snippet for k in ["football", "soccer", "midfielder", "forward", "defender", "striker", "winger"]):
+                    # Must look like a footballer article AND title must contain part of the name
+                    name_parts = clean_name.lower().split()
+                    title_lower = title.lower()
+                    name_match = any(part in title_lower for part in name_parts if len(part) > 3)
+                    is_footballer = any(k in snippet for k in ["footballer", "football player", "midfielder", "forward", "defender", "striker", "winger", "born"])
+                    if name_match and is_footballer:
                         img = _rest(title)
                         if img:
                             return img
@@ -95,8 +103,12 @@ def get_wikimedia_image(name: str) -> str:
            _search_wiki(f"{ascii_name} footballer"))
 
     if img:
-        cache.put(cache_key, img)
-        return img
+        # Don't cache flag/logo/landscape images
+        bad_patterns = ["Flag_of_", "flag_of_", "coat_of_arms", "Coat_of_arms",
+                        "emblem", "Emblem", "logo", "Logo", "shield", "Shield"]
+        if not any(p in img for p in bad_patterns):
+            cache.put(cache_key, img)
+            return img
 
     return ""
 

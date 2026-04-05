@@ -32,7 +32,7 @@ LEAGUES = [
     {"id": "La Liga",        "name": "La Liga",         "country": "Spain",   "logo": "https://media.api-sports.io/football/leagues/140.png"},
     {"id": "Serie A",        "name": "Serie A",         "country": "Italy",   "logo": "https://media.api-sports.io/football/leagues/135.png"},
     {"id": "Bundesliga",     "name": "Bundesliga",      "country": "Germany", "logo": "https://media.api-sports.io/football/leagues/78.png"},
-    {"id": "Ligue 1",        "name": "Ligue 1",         "country": "France",  "logo": "https://media.api-sports.io/football/leagues/61.png"},
+    {"id": "Ligue 1",        "name": "Ligue 1",         "country": "France",  "logo": "https://static.wikia.nocookie.net/logopedia/images/3/31/Ligue_1_2024.png"},
 ]
 
 SEASONS = ["2024-25", "2023-24", "2022-23", "2021-22"]
