@@ -4,15 +4,48 @@ A Python/Flask web application for comprehensive football analytics powered by F
 
 ## 🎯 Features
 
-- **Player Search** — Search and discover football players by name
-- **Detailed Statistics** — View comprehensive player stats (goals, assists, passes, tackles, etc.)
+### Core Features
+- **Player Search** — Search and discover football players by name across 5 major leagues with intelligent filtering
+- **Detailed Statistics** — View comprehensive player stats (goals, assists, passes, tackles, xG, xA, and 50+ metrics)
 - **Performance Visualization** — Server-side Matplotlib charts rendered as interactive images
 - **Player Profiles** — Wikipedia integration for player photos and bios (cached locally)
-- **Season Comparison** — Compare player performance across multiple seasons
-- **Offline-First Architecture** — All core functionality works completely offline
+- **Season Comparison** — Compare player performance across multiple seasons (4 seasons of data)
+- **Interactive Dashboards** — Multi-league support (Premier League, La Liga, Serie A, Bundesliga, Ligue 1)
+
+### Scout Matching Engine ⭐ **[CORE FEATURE]**
+- **15 Closest Players Similarity Matching** — Advanced player recommendation system that finds the 15 most similar players based on:
+  - **Similarity Index Calculation** — Multi-dimensional performance comparison using normalized metrics
+  - **Position-Based Matching** — Matches only players in the same position group (Attacker, Midfielder, Defender, Goalkeeper)
+  - **Age-Based Filtering** — Configurable age cap with automatic pool widening if insufficient matches found
+  - **Minimum Activity Filter** — Only considers players with 400+ minutes played in the season
+  - **Smart Candidate Ranking** — Returns top 15 matches ranked by similarity score
+  - **League Pool Options** — Search across all leagues or filter by specific league
+  - **Real-Time Metrics** — Calculates 25+ normalized metrics for comparison
+
+### Advanced Analytics Engine
+- **Player Archetypes** — Intelligent player classification and archetype detection system
+- **Similarity Index Scoring** — Proprietary algorithm for computing player similarity (0-100 scale)
+- **Performance Scoring** — Normalized performance scoring system with league adjustments
+- **Statistical Insights** — Advanced data analysis with actionable insights
+- **Data Normalization** — Smart normalization for cross-season and cross-league comparisons
+- **Performance Adjustments** — Dynamic adjustments based on league, position, and era
+
+### Visualization Suite
+- **Radar Charts** — 360° performance comparison across multiple dimensions
+- **Pizza Charts** — Advanced segmented performance breakdown with visual segmentation
+- **Percentile Charts** — Player ranking against peer groups (0-100 scale)
+- **Lollipop Charts** — Horizontal statistical comparisons with visual clarity
+- **Bar Charts** — Traditional metric comparisons across seasons/players
+- **Solo Charts** — Individual player deep-dive visualizations with archetype context
+
+### Data & Architecture
+- **Intelligent Caching System** — Smart cache management with JSON-based persistence
+- **Advanced Data Fetcher** — Real-time data retrieval and aggregation with fallback mechanisms
+- **Offline-First Architecture** — All core functionality works completely offline after initial load
 - **Responsive Design** — Mobile-friendly interface
 - **No Database Required** — Pure CSV-based data (no SQL setup needed)
 - **Zero Build Tools** — No npm, no Node.js, no Docker, no complex setup
+- **Multi-League Processing** — Supports 5 major football leagues simultaneously
 
 ## 🛠️ Tech Stack
 
@@ -119,7 +152,7 @@ python3 app.py
 
 ```
 FootIQ/
-├── app.py                      # Main Flask application
+├── app.py                      # Main Flask application & routes
 ├── config.py                   # Configuration settings
 ├── requirements.txt            # Python dependencies
 ├── football_master.csv         # FBref data (4 seasons)
@@ -128,35 +161,46 @@ FootIQ/
 ├── .gitignore                  # Git ignore rules
 ├── README.md                   # This file
 │
-├── core/                       # Application logic
+├── core/                       # Advanced analytics engine
 │   ├── __init__.py
-│   ├── player_service.py       # Player search & stats logic
-│   ├── chart_service.py        # Matplotlib chart generation
-│   └── cache_service.py        # Wikipedia image caching
+│   ├── archetype.py            # Player archetype classification system
+│   ├── scorer.py               # Performance scoring algorithms
+│   ├── normalizer.py           # Data normalization for comparisons
+│   ├── adjuster.py             # Performance adjustment system
+│   ├── insights.py             # Statistical insights & analysis
+│   ├── cache.py                # Intelligent caching system
+│   └── fetcher.py              # Advanced data fetcher
 │
 ├── static/                     # Frontend assets
 │   ├── css/
 │   │   └── style.css           # Application styles
 │   ├── js/
-│   │   └── script.js           # Client-side logic
+│   │   ├── app.js              # Main application logic
+│   │   └── scout.js            # Scout/search functionality
 │   └── images/                 # Static images
 │
 ├── templates/                  # HTML templates
-│   ├── index.html              # Home page with search
+│   ├── base.html               # Base template
+│   ├── hub.html                # Main hub/dashboard
 │   ├── player.html             # Player detail page
-│   ├── compare.html            # Player comparison
-│   └── base.html               # Base template
+│   └── scout.html              # Scout/search interface
 │
 ├── data/
-│   └── cache/
-│       └── player_images/      # Cached Wikipedia photos
+│   └── cache/                  # Intelligent cache storage
+│       ├── players_*.json      # Cached player data
+│       └── wiki_img_*.json     # Cached Wikipedia images
+│
+├── visuals/                    # Visualization modules
+│   ├── __init__.py
+│   ├── radar.py                # Radar chart visualization
+│   ├── pizza.py                # Pizza chart visualization
+│   ├── percentile.py           # Percentile chart visualization
+│   ├── lollipop.py             # Lollipop chart visualization
+│   ├── bar.py                  # Bar chart visualization
+│   └── solo.py                 # Solo player visualization
 │
 ├── tests/                      # Unit tests
-│   ├── test_player_service.py
-│   └── test_chart_service.py
-│
-├── visuals/                    # Generated charts (temp)
-│   └── *.png                   # Matplotlib output
+│   └── (test suite)
 │
 ├── __pycache__/                # Python cache (auto-generated)
 └── .vscode/                    # VS Code settings (optional)
@@ -204,42 +248,58 @@ G-PK, PK, PKatt, CrdY, CrdR, xG, xA, xG+xA, ...
 
 ## 🎨 Frontend Features
 
-### Home Page (`index.html`)
-- Search bar with autocomplete
-- Recent players or featured players
-- Quick stats overview
+### Hub Page (`hub.html`)
+- Central analytics dashboard
+- Recent searches and quick access
+- Featured player recommendations
+- Performance statistics overview
+- League-wide statistics
 
 ### Player Detail Page (`player.html`)
-- Player name, number, position, squad
+- Comprehensive player profile
 - Season-by-season statistics table
-- Performance charts (goals, assists, etc.)
-- Wikipedia bio and photo
-- Career highlights
+- Multiple performance visualizations (radar, pizza, percentile)
+- Wikipedia bio and cached photo
+- Career highlights and archetype classification
+- Performance comparison with peers
+- Historical performance trends
 
-### Comparison Page (`compare.html`)
-- Side-by-side player comparison
-- Stats tables
-- Visual charts comparing metrics
-- Export as image
+### Scout Page (`scout.html`)
+- Advanced player search with autocomplete
+- Multi-filter options (position, league, season)
+- Real-time search results
+- Quick player comparison view
+- Player statistics table with sorting
+- Archive of recent searches
 
 ---
 
-## 🖼️ Chart Generation
+## 🖼️ Advanced Chart Generation
 
-Charts are generated server-side using **Matplotlib**:
+FootIQ features a sophisticated **multi-chart visualization system** powered by **Matplotlib**:
 
-1. Request triggers chart generation
-2. Matplotlib creates visualization
-3. Chart converted to base64 PNG
-4. Returned to frontend as image
-5. No external charting library needed
+### Chart Types
+1. **Radar Charts** (`radar.py`) — 360° performance comparison across multiple dimensions
+2. **Pizza Charts** (`pizza.py`) — Advanced segmented performance breakdown with visual appeal
+3. **Percentile Charts** (`percentile.py`) — Player ranking against peer groups (0-100 scale)
+4. **Lollipop Charts** (`lollipop.py`) — Horizontal statistical comparisons with visual clarity
+5. **Bar Charts** (`bar.py`) — Traditional metric comparisons across seasons/players
+6. **Solo Charts** (`solo.py`) — Individual player deep-dive visualizations
+
+### Generation Pipeline
+1. Request triggers data retrieval from cache
+2. Data normalization applied based on league/position/season
+3. Matplotlib creates visualization based on selected chart type
+4. Chart converted to base64 PNG encoding
+5. Embedded directly in frontend as image
+6. No external charting library dependencies needed
 
 **Supported metrics:**
-- Goals, Assists, Shots on Target
-- Pass completion, Pass success rate
-- Tackles, Interceptions, Clearances
-- xG (Expected Goals), xA (Expected Assists)
-- And more...
+- Goals, Assists, Shots on Target, Expected Goals (xG)
+- Pass completion, Pass success rate, Progressive passes
+- Tackles, Interceptions, Blocks, Clearances
+- Expected Assists (xA), Pressure success rate
+- Dribbles, Fouls committed, And more...
 
 ---
 
@@ -258,7 +318,85 @@ Player photos are fetched from Wikipedia at runtime:
 
 ---
 
-## 🧪 Running Tests
+## ⭐ Scout Matching System - The Game Changer
+
+FootIQ's **Scout Matcher** is an advanced recommendation engine that helps identify the 15 most similar players to any given target player. This is perfect for recruitment, analysis, and fantasy football.
+
+### How It Works
+
+1. **User selects a target player** from any of the 5 supported leagues and season
+2. **System extracts 25+ normalized performance metrics** (goals, assists, passes, defensive stats, expected metrics, etc.)
+3. **Position-based matching** ensures only players in the same position group are compared
+4. **Similarity Index Calculation** using advanced scoring algorithm compares:
+   - Offensive metrics (goals, assists, xG, xA, shooting accuracy)
+   - Passing metrics (completion rate, key passes, progressive passes)
+   - Defensive metrics (tackles, interceptions, blocks, clearances)
+   - Physical metrics (dribbles, aerial win %, fouls drawn)
+   - Advanced metrics (SCA/90, GCA/90, npxG, touches in penalty area)
+
+5. **Ranking Algorithm** scores similarity on 0-100 scale
+6. **Returns top 15 matches** with similarity scores
+7. **Automatic pool widening** if insufficient matches (expands age filters)
+
+### Key Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| **Max Age** | Upper age limit for candidate matches | 40 years |
+| **League Pool** | Search within specific league or all leagues | All Leagues |
+| **Position Group** | Automatically detected from target player | Same position |
+| **Minimum Minutes** | Only players with 400+ minutes in season | 400 mins |
+| **Season** | Historical data available from 4 seasons | 2024-25 |
+
+### Supported Leagues
+- 🏴󠁧󠁢󠁥󠁮󠁧󠁿 **Premier League** (England)
+- 🇪🇸 **La Liga** (Spain)
+- 🇮🇹 **Serie A** (Italy)
+- 🇩🇪 **Bundesliga** (Germany)
+- 🇫🇷 **Ligue 1** (France)
+
+### Example Use Cases
+- **Recruitment** — Find similar players when your top target is unavailable
+- **Replacement Analysis** — Identify cost-effective alternatives with similar profiles
+- **Fantasy Football** — Find undervalued players with similar output to expensive stars
+- **Tactical Analysis** — Understand player archetypes and find comparable profiles
+- **Market Research** — Benchmark player performance against similar profiles
+
+---
+
+FootIQ includes a sophisticated analytics system for intelligent player evaluation:
+
+### Archetype Classification (`core/archetype.py`)
+- Automatically classifies players into archetypes (Striker, Midfielder, Defender, etc.)
+- Uses multi-dimensional performance metrics
+- Enables peer-group comparison
+- Updates dynamically based on performance data
+
+### Performance Scoring (`core/scorer.py`)
+- Normalizes player performance across different eras and leagues
+- Weights metrics based on player position and role
+- Generates comparable scores across seasons
+- Identifies emerging and declining trends
+
+### Data Normalization (`core/normalizer.py`)
+- Standardizes metrics across leagues and seasons
+- Handles missing data intelligently
+- Scales performance on consistent scale (0-100)
+- Enables cross-league comparisons
+
+### Performance Adjustments (`core/adjuster.py`)
+- League-specific performance adjustments
+- Position-based metric weights
+- Era-based calibration
+- Environmental context awareness
+
+### Statistical Insights (`core/insights.py`)
+- Automatic insight generation from data patterns
+- Trend identification and prediction
+- Comparative analysis with peer groups
+- Performance change analysis
+
+---
 
 ```bash
 # Run all tests
