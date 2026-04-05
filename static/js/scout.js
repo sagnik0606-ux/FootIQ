@@ -36,7 +36,7 @@ const doSearch = debounce(async (isGlobal = false) => {
     }
     resultsEl.innerHTML = data.map(p => `
       <div class="result-item" data-id="${p.id}" data-player='${JSON.stringify(p).replace(/'/g,"&#39;")}'>
-        <img src="${p.photo||''}" onerror="this.src='https://media.api-sports.io/football/players/0.png'" />
+        <img src="${p.photo||_scoutInitials(p.name)}" onerror="this.src='${_scoutInitials(p.name)}'" />
         <div>
           <div class="result-name">${p.name}</div>
           <div class="result-meta">${p.league ? p.league + ' · ' : ''}${p.team} · ${p.position}</div>
@@ -56,7 +56,9 @@ resultsEl.addEventListener("click", e => {
   
   targetCard.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;">
-      <img src="${targetPlayer.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--c0)" onerror="this.src='https://media.api-sports.io/football/players/0.png'" />
+      <img src="${targetPlayer.photo || _scoutInitials(targetPlayer.name)}" 
+           style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--c0)" 
+           onerror="this.src='${_scoutInitials(targetPlayer.name)}'" />
       <div>
         <div style="font-size:20px;font-weight:700;color:var(--text)">${targetPlayer.name}</div>
         <div style="font-size:13px;color:var(--muted)">${targetPlayer.team} · ${targetPlayer.position}</div>
@@ -122,9 +124,10 @@ function _scoutInitials(name, size=50) {
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-async function _loadScoutImage(name, imgEl) {
+async function _loadScoutImage(name, team, imgEl) {
     try {
-        const r = await fetch(`/api/player-image?name=${encodeURIComponent(name)}`);
+        const url = `/api/player-image?name=${encodeURIComponent(name)}${team ? `&team=${encodeURIComponent(team)}` : ""}`;
+        const r = await fetch(url);
         if (r.ok) {
             const d = await r.json();
             if (d.url) { imgEl.src = d.url; return; }
@@ -148,7 +151,9 @@ function renderMatches(matches, widened) {
     matchesList.innerHTML = notice + matches.map((m, i) => `
         <div class="glass-card" style="display:flex;align-items:center;padding:20px;gap:20px;border-color: ${i===0 ? 'var(--c0)' : 'var(--border)'}; transform:none; cursor:default">
             <div style="font-size:24px;font-weight:900;color:var(--dim);width:30px">#${i+1}</div>
-            <img data-name="${m.name}" src="${_scoutInitials(m.name)}" style="width:50px;height:50px;border-radius:50%;object-fit:cover" />
+            <img data-name="${m.name}" src="${_scoutInitials(m.name)}" 
+                 onerror="this.src='${_scoutInitials(m.name)}'"
+                 style="width:50px;height:50px;border-radius:50%;object-fit:cover" />
             <div style="flex:1">
                 <div style="font-size:18px;font-weight:700;color:var(--text)">${m.name} <span style="font-size:12px;color:var(--muted);font-weight:500;margin-left:6px">(Age ${m.age})</span></div>
                 <div style="font-size:13px;color:var(--dim)">${m.league} · ${m.team}</div>
@@ -174,6 +179,7 @@ function renderMatches(matches, widened) {
 
     // Load images in background — non-blocking
     matchesList.querySelectorAll("img[data-name]").forEach(img => {
-        _loadScoutImage(img.dataset.name, img);
+        const team = img.closest(".glass-card").querySelector("div[style*='color:var(--dim)']").textContent.split(" · ")[1];
+        _loadScoutImage(img.dataset.name, team, img);
     });
 }

@@ -123,9 +123,10 @@ def scout_matcher():
 @app.route("/api/player-image")
 def api_player_image():
     name = request.args.get("name", "").strip()
+    team = request.args.get("team", "").strip()
     if not name:
         return jsonify({"url": ""})
-    url = get_wikimedia_image(name)
+    url = get_wikimedia_image(name, team=team)
     return jsonify({"url": url})
 
 @app.route("/api/leagues")
@@ -256,7 +257,7 @@ def api_similar():
 
         # Only fetch images for the final 4
         for c in top4:
-            c["photo"] = get_wikimedia_image(c["name"])
+            c["photo"] = get_wikimedia_image(c["name"], team=c.get("team"))
             del c["sim"]
 
         return jsonify(top4)

@@ -275,22 +275,24 @@ function updateProfileSeasonStats(player) {
 // ─────────────────────────────────────────────────────────────────────────────
 const _wikiImgCache = {};
 
-async function fetchWikiImage(name) {
-  if (_wikiImgCache[name] !== undefined) return _wikiImgCache[name];
+async function fetchWikiImage(name, team = "") {
+  const cacheKey = `${name}_${team}`;
+  if (_wikiImgCache[cacheKey] !== undefined) return _wikiImgCache[cacheKey];
   try {
-    const r = await fetch(`/api/player-image?name=${encodeURIComponent(name)}`);
+    const url = `/api/player-image?name=${encodeURIComponent(name)}${team ? `&team=${encodeURIComponent(team)}` : ""}`;
+    const r = await fetch(url);
     if (r.ok) {
       const d = await r.json();
-      _wikiImgCache[name] = d.url || "";
-      return _wikiImgCache[name];
+      _wikiImgCache[cacheKey] = d.url || "";
+      return _wikiImgCache[cacheKey];
     }
   } catch {}
-  _wikiImgCache[name] = "";
+  _wikiImgCache[cacheKey] = "";
   return "";
 }
 
-async function applyWikiImage(name, ...imgEls) {
-  const url = await fetchWikiImage(name);
+async function applyWikiImage(name, team, ...imgEls) {
+  const url = await fetchWikiImage(name, team);
   if (url) {
     imgEls.forEach(el => { if (el) el.src = url; });
   } else {
@@ -304,7 +306,7 @@ function renderSoloStats(data) {
 
   // Fetch and apply profile photo client-side
   const profilePhoto = document.querySelector(".profile-photo");
-  if (profilePhoto) applyWikiImage(player.name, profilePhoto);
+  if (profilePhoto) applyWikiImage(player.name, player.team, profilePhoto);
 
   // Update score chip — include archetype badge
   const archetypeHtml = data.archetype
@@ -410,7 +412,8 @@ async function fetchSimilar(player) {
       chip.addEventListener("click", () => selectPrimaryPlayer(JSON.parse(chip.dataset.player)));
       // fetch image client-side
       const img = chip.querySelector(".sim-chip-img");
-      applyWikiImage(chip.dataset.name, img);
+      const p = JSON.parse(chip.dataset.player);
+      applyWikiImage(p.name, p.team, img);
     });
   } catch { /* non-critical */ }
 }
@@ -453,7 +456,7 @@ function renderPrimarySlot() {
     </div>
     <div style="font-size:11px;color:var(--muted);margin-top:4px">League set in main search</div>
   `;
-  applyWikiImage(primaryPlayer.name, el.querySelector(".primary-slot-img"));
+  applyWikiImage(primaryPlayer.name, primaryPlayer.team, el.querySelector(".primary-slot-img"));
 }
 
 function addCompareSlot() {
@@ -600,7 +603,7 @@ function selectSlotPlayer(player, slotIdx) {
   document.getElementById(`slot-card-${slotIdx}`).parentElement.classList.add("filled-slot");
   card.querySelector(".slot-clear").addEventListener("click", () => clearSlotPlayer(slotIdx));
   // fetch photo async
-  applyWikiImage(player.name, card.querySelector(".slot-wiki-img"));
+  applyWikiImage(player.name, player.team, card.querySelector(".slot-wiki-img"));
   updateCompareUI();
 }
 
@@ -701,7 +704,10 @@ function renderComparison(data) {
   }).join("");
 
   // Fetch photos for score cards
-  document.querySelectorAll(".sc-photo").forEach(img => applyWikiImage(img.dataset.name, img));
+  document.querySelectorAll(".sc-photo").forEach(img => {
+    const idx = img.closest(".score-card").dataset.idx;
+    applyWikiImage(players[idx].name, players[idx].team, img);
+  });
 
   // Inject comparison mode label above percentile table
   const modeLabelEl = document.getElementById("comparison-mode-label");

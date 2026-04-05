@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import hashlib
 import os
+import re
 import unicodedata
 from typing import List, Dict, Optional
 from core import cache
@@ -22,9 +23,10 @@ def _get_df() -> pd.DataFrame:
         _DF['player_id'] = _DF.apply(lambda x: int(hashlib.md5(f"{x['Player']}{x['Squad']}{x['season']}".encode()).hexdigest()[:8], 16), axis=1)
     return _DF
 
-def get_wikimedia_image(name: str) -> str:
+def get_wikimedia_image(name: str, team: str = None) -> str:
     """Fetch player image via Wikipedia REST API with caching."""
-    cache_key = f"wiki_img_{name.replace(' ', '_')}"
+    # Use v4 and include team in key to bypass any old incorrect cached images
+    cache_key = f"wiki_img_v4_{name.replace(' ', '_')}_{str(team).replace(' ', '_')}"
     cached = cache.get(cache_key)
     if cached and cached.startswith("http"):
         # Reject known bad image patterns (flags, landscapes, logos)
@@ -36,29 +38,79 @@ def get_wikimedia_image(name: str) -> str:
 
     HEADERS = {"User-Agent": "FootIQ/1.0 (football analytics; https://github.com/footiq)"}
 
-    def _rest(title: str) -> str | None:
+    def _is_footballer(d: dict) -> bool:
+        """Check if the summary data looks like a footballer/club."""
+        extract = (d.get("extract") or "").lower()
+        desc = (d.get("description") or "").lower()
+        keywords = ["footballer", "soccer", "midfielder", "forward", "striker", "winger", 
+                    "defender", "goalkeeper", "player", "club", "stats", "league", "born", "playing"]
+        
+        match = any(k in extract for k in keywords) or any(k in desc for k in keywords)
+        
+        # If team is provided, it's a very strong indicator if it's in the text
+        if team:
+            t_low = team.lower()
+            # Handle common variations like "Nott'ham Forest" vs "Nottingham Forest"
+            t_alt = t_low.replace("nott'ham", "nottingham").replace("utd", "united")
+            if t_low in extract or t_alt in extract or t_low in desc or t_alt in desc:
+                return True
+        return match
+
+    def _rest(title: str, force_verify: bool = False) -> str | None:
         try:
             slug = title.strip().replace(" ", "_")
             from urllib.parse import quote
             encoded_slug = quote(slug, safe="")
+            
+            # 1. Try Standard Summary API
             r = requests.get(
                 f"https://en.wikipedia.org/api/rest_v1/page/summary/{encoded_slug}",
                 headers=HEADERS, timeout=5
             )
+            d = {}
             if r.status_code == 200:
                 d = r.json()
                 # Skip disambiguation pages
                 if d.get("type") == "disambiguation":
                     return None
+                
+                # If we are searching by just the name, we MUST verify it's a footballer
+                if force_verify and not _is_footballer(d):
+                    return None
+
                 img = (d.get("originalimage") or d.get("thumbnail") or {}).get("source")
                 if img:
                     # Reject non-person images: flags, landscapes, city photos, logos
                     bad = ["Flag_of_", "flag_of_", "coat_of_arms", "Coat_of_arms",
                            "emblem", "Logo", "logo", "shield", "Shield",
-                           "Anderson,_South_Carolina", "Anderson_County",
-                           "city", "City", "town", "Town", "stadium", "Stadium"]
+                           "city", "City", "town", "Town", "stadium", "Stadium",
+                           "landscape", "Panorama"]
                     if not any(b in img for b in bad):
                         return img
+            
+            # 2. Deep Dive: Parse Infobox if summary is empty (common for non-superstars like Elliot Anderson)
+            pr = requests.get(
+                f"https://en.wikipedia.org/w/api.php?action=parse&page={encoded_slug}&prop=wikitext&section=0&format=json",
+                headers=HEADERS, timeout=5
+            )
+            if pr.status_code == 200:
+                wt = pr.json().get("parse", {}).get("wikitext", {}).get("*", "")
+                # Look for | image = filename.jpg (common in Infoboxes)
+                infobox_img = re.search(r"\|\s*image\s*=\s*([^|\n\r]+)", wt)
+                if infobox_img:
+                    file_name = infobox_img.group(1).strip()
+                    if file_name:
+                        # Resolve filename to a direct URL using Action API
+                        ir = requests.get(
+                            f"https://en.wikipedia.org/w/api.php?action=query&titles=File:{quote(file_name)}&prop=imageinfo&iiprop=url&format=json",
+                            headers=HEADERS, timeout=5
+                        )
+                        pages = ir.json().get("query", {}).get("pages", {})
+                        for pid in pages:
+                            ii_list = pages[pid].get("imageinfo", [])
+                            if ii_list:
+                                final_url = ii_list[0].get("url")
+                                if final_url: return final_url
         except:
             pass
         return None
@@ -80,8 +132,11 @@ def get_wikimedia_image(name: str) -> str:
                     name_parts = clean_name.lower().split()
                     title_lower = title.lower()
                     name_match = any(part in title_lower for part in name_parts if len(part) > 3)
-                    is_footballer = any(k in snippet for k in ["footballer", "football player", "midfielder", "forward", "defender", "striker", "winger", "born"])
-                    if name_match and is_footballer:
+                    
+                    is_foot = any(k in snippet for k in ["footballer", "football player", "midfielder", "forward", "defender", "striker", "winger", "born"])
+                    if team and team.lower() in snippet: is_foot = True
+
+                    if name_match and is_foot:
                         img = _rest(title)
                         if img:
                             return img
@@ -101,14 +156,15 @@ def get_wikimedia_image(name: str) -> str:
 
     ascii_name = _ascii_fallback(clean_name)
 
-    img = (_rest(clean_name) or
+    # Try multiple variations, prioritizing SPECIFIC footballer articles and using team context
+    img = ( (team and _rest(f"{clean_name} ({team})")) or
            _rest(f"{clean_name} (footballer)") or
            _rest(f"{clean_name} (soccer)") or
-           # ASCII fallback for accented names like Demirović → Demirovic
-           (None if ascii_name == clean_name else _rest(ascii_name)) or
-           (None if ascii_name == clean_name else _rest(f"{ascii_name} (footballer)")) or
+           _rest(clean_name, force_verify=True) or
            # Wikipedia search fallback — finds correct article even for less-known players
+           (team and _search_wiki(f"{clean_name} {team} footballer")) or
            _search_wiki(f"{clean_name} footballer") or
+           (None if ascii_name == clean_name else _rest(f"{ascii_name} (footballer)")) or
            _search_wiki(f"{ascii_name} footballer"))
 
     if img:
@@ -220,7 +276,8 @@ def get_player_stats(player_id: int, league: str, season: str) -> Optional[Dict]
         except: return 0
 
     name = row['Player']
-    photo = get_wikimedia_image(name)
+    squad = row.get('Squad')
+    photo = get_wikimedia_image(name, team=squad)
 
     # Helper to safely derive a value
     def derive(primary, *fallbacks):
