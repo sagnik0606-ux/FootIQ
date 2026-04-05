@@ -70,6 +70,26 @@
        const btn = document.getElementById('theme-toggle');
        if(btn) btn.textContent = '☀️';
     }
+
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 20);
+      }, { passive: true });
+    }
+
+    // Scroll-animate observer
+    const scrollObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('scroll-animate-visible');
+          scrollObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.scroll-animate').forEach(el => scrollObserver.observe(el));
   </script>
   {% block extra_js %}{% endblock %}
 </body>
