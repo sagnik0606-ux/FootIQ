@@ -349,11 +349,11 @@ FootIQ's **Scout Matcher** is an advanced recommendation engine that helps ident
 | **Season** | Historical data available from 4 seasons | 2024-25 |
 
 ### Supported Leagues
-- 🏴󠁧󠁢󠁥󠁮󠁧󠁿 **Premier League** (England)
-- 🇪🇸 **La Liga** (Spain)
-- 🇮🇹 **Serie A** (Italy)
-- 🇩🇪 **Bundesliga** (Germany)
-- 🇫🇷 **Ligue 1** (France)
+- Premier League (England)
+- La Liga (Spain)
+- Serie A (Italy)
+- Bundesliga (Germany)
+- Ligue 1 (France)
 
 ### Example Use Cases
 - **Recruitment** — Find similar players when your top target is unavailable
